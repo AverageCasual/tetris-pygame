@@ -1,6 +1,6 @@
 import random
 import pygame
-
+from pygame.locals import *
 """
 10 x 20 grid
 play_height = 2 * play_width
@@ -227,7 +227,7 @@ def get_shape():
 
 # draws text in the middle
 def draw_text_middle(text, size, color, surface):
-    font = pygame.font.Font(fontpath, size, bold=False, italic=True)
+    font = pygame.font.Font(fontpath, size)
     label = font.render(text, 1, color)
 
     surface.blit(label, (top_left_x + play_width/2 - (label.get_width()/2), top_left_y + play_height/2 - (label.get_height()/2)))
@@ -235,7 +235,7 @@ def draw_text_middle(text, size, color, surface):
 
 # draws the lines of the grid for the game
 def draw_grid(surface):
-    r = g = b = 0
+    r = g = b = 30
     grid_color = (r, g, b)
 
     for i in range(row):
@@ -306,7 +306,7 @@ def draw_window(surface, grid, score=0, last_score=0):
     surface.fill((0, 0, 0))  # fill the surface with black
 
     pygame.font.init()  # initialise font
-    font = pygame.font.Font(fontpath_mario, 65, bold=True)
+    font = pygame.font.Font(fontpath_mario, 65)
     label = font.render('TETRIS', 1, (255, 255, 255))  # initialise 'Tetris' text with white
 
     surface.blit(label, ((top_left_x + play_width / 2) - (label.get_width() / 2), 30))  # put surface on the center of the window
@@ -322,6 +322,7 @@ def draw_window(surface, grid, score=0, last_score=0):
 
     # last score
     label_hi = font.render('HIGHSCORE   ' + str(last_score), 1, (255, 255, 255))
+
 
     start_x_hi = top_left_x - 240
     start_y_hi = top_left_y + 200
@@ -401,11 +402,14 @@ def main(window):
         if fall_time / 1000 > fall_speed:
             fall_time = 0
             current_piece.y += 1
+            
             if not valid_space(current_piece, grid) and current_piece.y > 0:
                 current_piece.y -= 1
                 # since only checking for down - either reached bottom or hit another piece
                 # need to lock the piece position
                 # need to generate new piece
+                if key [K_DOWN] == False:
+                    pygame.time.delay(200)
                 change_piece = True
 
         for event in pygame.event.get():
@@ -414,28 +418,34 @@ def main(window):
                 pygame.display.quit()
                 quit()
 
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_LEFT:
-                    current_piece.x -= 1  # move x position left
-                    if not valid_space(current_piece, grid):
-                        current_piece.x += 1
+        key = pygame.key.get_pressed()
 
-                elif event.key == pygame.K_RIGHT:
-                    current_piece.x += 1  # move x position right
-                    if not valid_space(current_piece, grid):
-                        current_piece.x -= 1
+        if key[K_LEFT]:
+            current_piece.x -= 1  # move x position left
+            if not valid_space(current_piece, grid):
+                current_piece.x += 1
 
-                elif event.key == pygame.K_DOWN:
-                    # move shape down
-                    current_piece.y += 1
-                    if not valid_space(current_piece, grid):
-                        current_piece.y -= 1
+            pygame.time.delay(130)
 
-                elif event.key == pygame.K_UP:
-                    # rotate shape
-                    current_piece.rotation = current_piece.rotation + 1 % len(current_piece.shape)
-                    if not valid_space(current_piece, grid):
-                        current_piece.rotation = current_piece.rotation - 1 % len(current_piece.shape)
+        if key[K_RIGHT]:
+            current_piece.x += 1  # move x position right
+            if not valid_space(current_piece, grid):
+                current_piece.x -= 1
+            pygame.time.delay(130)
+
+        if key[K_DOWN]:
+            # move shape down
+            current_piece.y += 1
+            if not valid_space(current_piece, grid):
+                current_piece.y -= 1
+            pygame.time.delay(50)
+
+        if key[K_UP]:
+            # rotate shape
+            current_piece.rotation = current_piece.rotation + 1 % len(current_piece.shape)
+            if not valid_space(current_piece, grid):
+                current_piece.rotation = current_piece.rotation - 1 % len(current_piece.shape)
+            pygame.time.delay(200)
 
         piece_pos = convert_shape_format(current_piece)
 
